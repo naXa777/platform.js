@@ -1232,29 +1232,33 @@
   /*--------------------------------------------------------------------------*/
 
   // Export platform.
-  var platform = parse();
+  try {
+    var platform = parse();
 
-  // Some AMD build optimizers, like r.js, check for condition patterns like the following:
-  if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
-    // Expose platform on the global object to prevent errors when platform is
-    // loaded by a script tag in the presence of an AMD loader.
-    // See http://requirejs.org/docs/errors.html#mismatch for more details.
-    root.platform = platform;
+    // Some AMD build optimizers, like r.js, check for condition patterns like the following:
+    if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
+      // Expose platform on the global object to prevent errors when platform is
+      // loaded by a script tag in the presence of an AMD loader.
+      // See http://requirejs.org/docs/errors.html#mismatch for more details.
+      root.platform = platform;
 
-    // Define as an anonymous module so platform can be aliased through path mapping.
-    define(function() {
-      return platform;
-    });
-  }
-  // Check for `exports` after `define` in case a build optimizer adds an `exports` object.
-  else if (freeExports && freeModule) {
-    // Export for CommonJS support.
-    forOwn(platform, function(value, key) {
-      freeExports[key] = value;
-    });
-  }
-  else {
-    // Export to the global object.
-    root.platform = platform;
+      // Define as an anonymous module so platform can be aliased through path mapping.
+      define(function() {
+        return platform;
+      });
+    }
+    // Check for `exports` after `define` in case a build optimizer adds an `exports` object.
+    else if (freeExports && freeModule) {
+      // Export for CommonJS support.
+      forOwn(platform, function(value, key) {
+        freeExports[key] = value;
+      });
+    }
+    else {
+      // Export to the global object.
+      root.platform = platform;
+    }
+  } catch (any) {
+    console.error(any);
   }
 }.call(this));
